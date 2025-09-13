@@ -11,7 +11,9 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this!
-CORS(app,supports_credentials=True)
+# Allow credentials and restrict origins to your frontend URL
+CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5500"])
+
 
 # Database setup
 DATABASE = 'civic_issues.db'
@@ -232,6 +234,8 @@ def get_issues():
 @app.route('/issues', methods=['POST'])
 def create_issue():
     """Create a new issue (civilian only, supports image file upload)"""
+    print("Current session during issue creation:", dict(session))
+
     if 'user_id' not in session:
         return jsonify({'message': 'Authentication required'}), 401
 

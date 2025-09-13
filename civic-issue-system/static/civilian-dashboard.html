@@ -186,7 +186,7 @@
 </div>
 
 <script>
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://127.0.0.1:5000";
 
 document.addEventListener('DOMContentLoaded', () => {
     loadIssues();
@@ -220,7 +220,9 @@ document.getElementById('issueForm').onsubmit = async function(e) {
             credentials: "include",
             body: formData
         });
+        console.log("Response:", resp.status);
         const data = await resp.json();
+        console.log("Data:", data);
         if (resp.status === 201) {
             document.getElementById('formMsg').innerHTML = "<span style='color: green;'>Complaint reported! ✔️</span>";
             document.getElementById('issueForm').reset();
@@ -229,6 +231,7 @@ document.getElementById('issueForm').onsubmit = async function(e) {
             document.getElementById('formMsg').innerHTML = `<span style='color: red;'>${data.message}</span>`;
         }
     } catch (err) {
+        console.error("Fetch error:", err);
         document.getElementById('formMsg').innerHTML = "<span style='color: red;'>Error reporting complaint.</span>";
     }
 };
