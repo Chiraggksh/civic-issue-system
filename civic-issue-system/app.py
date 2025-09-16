@@ -58,6 +58,7 @@ def init_db():
             location TEXT,
             image_url TEXT,
             reported_by INTEGER,
+            upvotes INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -204,7 +205,6 @@ def report_issue():
 
 
 
-# ✅ Get issues by constituency
 # ✅ Get issues by constituency (real-time fetch)
 @app.route("/issues/<constituency>", methods=["GET"])
 def get_issues_by_constituency(constituency):
@@ -227,12 +227,29 @@ def get_issues_by_constituency(constituency):
                 "constituency": issue["constituency"],
                 "location": issue["location"],
                 "image_url": issue["image_url"],
+                "upvotes": issue["upvotes"],
                 "created_at": issue["created_at"]
             })
 
         return jsonify({"issues": issues_list}), 200
     except Exception as e:
         print(f"Get issues error: {e}")
+        return jsonify({"message": "Internal server error"}), 500
+
+#upvote ki functionality
+@app.route("/upvote/<issue_id>", methods=["POST"])
+def upvote_issue(issue_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE issues SET upvotes = upvotes + 1 WHERE id = ?", (issue_id,))
+        conn.commit()
+        # Return the updated upvote count
+        updated = cursor.execute("SELECT upvotes FROM issues WHERE id = ?", (issue_id,)).fetchone()
+        conn.close()
+        return jsonify({"upvotes": updated["upvotes"]}), 200
+    except Exception as e:
+        print(f"Upvote error: {e}")
         return jsonify({"message": "Internal server error"}), 500
 
 

@@ -97,6 +97,8 @@
     const ctx = document.getElementById("issuesChart").getContext("2d");
     const logoutBtn = document.getElementById('logoutBtn');
     let chart;
+    let currentConstituency = "";
+
 
     // Submit issue
     form.addEventListener("submit", async (e) => {
@@ -133,35 +135,78 @@
 
     // Fetch issues for a constituency
     async function fetchIssues(constituency) {
-      if (!constituency) return;
-      try {
-        const response = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(constituency)}`);
-        const data = await response.json();
+              if (!constituency) return;
+              try {
+                const response = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(constituency)}`);
+                const data = await response.json();
 
-        if (!response.ok) {
-          console.error("Server error:", data);
-          return;
+                if (!response.ok) {
+                  console.error("Server error:", data);
+                  return;
+                }
+
+                // Sort by upvotes descending
+                data.issues.sort((a, b) => b.upvotes - a.upvotes);
+
+                issuesTableBody.innerHTML = "";
+                let categoryCount = {};
+
+                data.issues.forEach(issue => {
+                  const date = issue.created_at ? new Date(issue.created_at).toLocaleString() : "-";
+
+                  const rowHTML = `
+                    <tr>
+                      <td>${escapeHtml(issue.title)}
+                        <br>
+                        <small>Upvotes: <span id="upvote-${issue.id}">${issue.upvotes}</span>
+                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="upvote('${issue.id}')">Upvote</button></small>
+                      </td>
+                      <td>${escapeHtml(issue.category)}</td>
+                      <td>${escapeHtml(issue.constituency)}</td>
+                      <td>${date}</td>
+                    </tr>
+                  `;
+
+                  issuesTableBody.insertAdjacentHTML("beforeend", rowHTML);
+
+                  categoryCount[issue.category] = (categoryCount[issue.category] || 0) + 1;
+                });
+
+                // Update chart only if there is data
+                if (Object.keys(categoryCount).length > 0) {
+                  updateChart(categoryCount);
+                }
+
+              } catch (err) {
+                console.error("Fetch issues error:", err);
+              }
+            }
+
+    async function upvote(issueId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/upvote/${issueId}`, { method: "POST" });
+          const data = await response.json();
+          if (response.ok) {
+            document.getElementById(`upvote-${issueId}`).textContent = data.upvotes;
+            
+                 // Refresh the table and chart using current constituency
+            if (currentConstituency) refreshIssues();
+          } else {
+            console.error("Upvote error:", data.message);
+          }
+        } catch (err) {
+          console.error("Network error:", err);
         }
-
-        issuesTableBody.innerHTML = "";
-        let categoryCount = {};
-        data.issues.forEach(issue => {
-          const date = issue.created_at ? new Date(issue.created_at).toLocaleString() : "-";
-          const row = `<tr>
-            <td>${escapeHtml(issue.title)}</td>
-            <td>${escapeHtml(issue.category)}</td>
-            <td>${escapeHtml(issue.constituency)}</td>
-            <td>${date}</td>
-          </tr>`;
-          issuesTableBody.insertAdjacentHTML("beforeend", row);
-          categoryCount[issue.category] = (categoryCount[issue.category] || 0) + 1;
-        });
-
-        updateChart(categoryCount);
-      } catch (err) {
-        console.error("Fetch issues error:", err);
-      }
     }
+
+    //refreshing issues 
+      let fetchTimeout;
+      function refreshIssues() {
+        if (fetchTimeout) clearTimeout(fetchTimeout);
+        fetchTimeout = setTimeout(() => {
+          if (currentConstituency) fetchIssues(currentConstituency);
+        }, 200); // 200ms delay
+      }
 
     // Update chart
     function updateChart(categoryCount) {
@@ -182,9 +227,10 @@
     // Press Enter to search
     searchConstituency.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
-        const q = searchConstituency.value.trim();
-        fetchIssues(q);
-      }
+          e.preventDefault(); // prevent form submit if inside a form
+          currentConstituency = searchConstituency.value.trim();
+          if (currentConstituency) fetchIssues(currentConstituency);
+        }
     });
 
     //logout ki functionality
