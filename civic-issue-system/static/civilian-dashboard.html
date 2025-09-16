@@ -123,7 +123,10 @@
           formMessage.innerHTML = `<div class="alert alert-success">${result.message || "Submitted"}</div>`;
           form.reset();
           // refresh results for the constituency if provided
-          if (constituencyVal) fetchIssues(constituencyVal);
+          if (constituencyVal) {
+              currentConstituency = constituencyVal;
+              fetchIssues(currentConstituency);
+            }
         } else {
           formMessage.innerHTML = `<div class="alert alert-danger">Error ${response.status}: ${result.message || text}</div>`;
         }
@@ -225,7 +228,7 @@
     }
 
     // Press Enter to search
-    searchConstituency.addEventListener("keypress", (e) => {
+    searchConstituency.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
           e.preventDefault(); // prevent form submit if inside a form
           currentConstituency = searchConstituency.value.trim();
