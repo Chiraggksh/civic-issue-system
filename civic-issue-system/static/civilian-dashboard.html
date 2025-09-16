@@ -1,366 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Civilian Dashboard - Civic Complaint Portal</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Fonts and simple icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        body {
-            background: #f5f8fa;
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            color: #222;
-        }
-        header {
-            background: linear-gradient(90deg, #437ad3, #4967a7 70%);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 4px #ccc;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-        }
-        .container {
-            max-width: 1100px;
-            margin: auto;
-            background: #fff;
-            border-radius: 8px;
-            padding: 2rem 3rem 3rem;
-            box-shadow: 0 4px 12px rgba(67,122,211,0.08);
-        }
-        h2 {
-            color: #437ad3;
-            margin-bottom: 1rem;
-        }
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-bottom: 1.8rem;
-        }
-        .form-group {
-            flex: 1 1 220px;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 0.4rem;
-            font-weight: 500;
-        }
-        input[type="text"], input[type="url"], textarea, select {
-            border: 1.4px solid #ccd2e3;
-            border-radius: 4px;
-            padding: 0.5rem;
-            font-size: 1rem;
-        }
-        textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
-        button, .logout-btn {
-            background: #437ad3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 0.65rem 1.4rem;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 9px;
-            transition: background 0.2s;
-        }
-        button:hover, .logout-btn:hover {
-            background: #2d51a7;
-        }
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(90deg, #437ad3, #4967a7 70%);
-            color: white;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 4px #ccc;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-        }
-        .logout-btn {
-            margin: 0;
-            background: #dc3545;
-            font-size: 1rem;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top:2rem;
-        }
-        th, td {
-            padding: 0.8rem 0.7rem;
-            text-align: left;
-            border-bottom: 1px solid #eaeaea;
-        }
-        tr:hover {
-            background: #f3f6fd;
-        }
-        th {
-            background: #f6f8fc;
-            color: #4967a7;
-            font-weight: 600;
-        }
-        .upvote-btn {
-            background: transparent;
-            color: #437ad3;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-        .upvote-btn:disabled {
-            color: #999;
-            cursor: not-allowed;
-        }
-        .img-thumb {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-        @media (max-width: 800px) {
-            .container { padding: 1rem; }
-            .form-row { flex-direction: column; gap: 1rem; }
-            th, td { font-size: 0.95rem; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Civilian Dashboard - Civic Issue Reporting</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background-color: #f4f6f9; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+    .navbar { background-color: #003366; }
+    .navbar-brand, .nav-link, .navbar-text { color: #fff !important; }
+    .card { border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .form-label { font-weight: 600; }
+    .chart-container { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  </style>
 </head>
 <body>
-<header>
-    Civic Complaint Portal - Civilian Dashboard
-    <button class="logout-btn" onclick="logout()">Logout <i class="fas fa-sign-out-alt"></i></button>
-</header>
-<div class="container">
-    <h2>Report a Civic Problem</h2>
-    <form id="issueForm">
-        <div class="form-row">
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select id="category" name="category" required>
-                    <option value="" disabled selected>Select type</option>
-                    <option value="Potholes">Potholes</option>
-                    <option value="Streetlight">Streetlight</option>
-                    <option value="Garbage">Garbage</option>
-                    <option value="Drainage">Drainage</option>
-                    <option value="Traffic Signal">Traffic Signal</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="title">Short Title</label>
-                <input type="text" id="title" name="title" required maxlength="80" placeholder="Eg. Broken streetlight near Metro Gate">
-            </div>
-            <div class="form-group">
-                <label for="image_file">Upload Photo</label>
-                <input type="file" id="image_file" name="image_file" accept="image/*">
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Civic Issue Portal</a>
+    <!-- <span class="navbar-text me-auto">Civilian Dashboard</span> -->
+    <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+  </div>
+</nav>
 
+  <div class="container my-4">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card p-4">
+          <h4 class="mb-3 text-primary">Report an Issue</h4>
+          <form id="reportForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label class="form-label">Issue Title</label>
+              <input type="text" class="form-control" id="title" name="title" required>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="category" name="category" required>
+                <option value="">Select Category</option>
+                <option>Road</option>
+                <option>Water</option>
+                <option>Electricity</option>
+                <option>Sanitation</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Constituency</label>
+              <input type="text" class="form-control" id="constituency" name="constituency" placeholder="e.g. South Delhi" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Location (optional)</label>
+              <input type="text" class="form-control" id="location" name="location">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Upload Photo</label>
+              <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit Issue</button>
+          </form>
+          <div id="formMessage" class="mt-3"></div>
         </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" required maxlength="255" placeholder="Describe the issue, e.g. location, severity, etc."></textarea>
-            </div>
-            <div class="form-group">
-                <label for="location">Location</label>
-                <input type="text" id="location" name="location" required placeholder="Eg. Sector 12, Block D, near temple">
-                <button type="button" onclick="getLocation()" style="margin-top:10px;">Get My Location <i class="fas fa-location-arrow"></i></button>
-            </div>
-        </div>
-        <button type="submit"><i class="fas fa-exclamation-circle"></i> Submit Complaint</button>
-    </form>
-    <div id="formMsg"></div>
-    <hr style="margin:2rem 0;">
-    <h2>Public Complaints</h2>
-    <div id="issuesArea"></div>
-</div>
+      </div>
 
-<script>
-const API_BASE = "http://127.0.0.1:5000";
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadIssues();
-});
-
-// Handle Issue Form Submission
-document.getElementById('issueForm').onsubmit = async function(e) {
-    e.preventDefault();
-    document.getElementById('formMsg').innerHTML = "";
-
-    const title = document.getElementById('title').value.trim();
-    const description = document.getElementById('description').value.trim();
-    const category = document.getElementById('category').value;
-    const location = document.getElementById('location').value.trim();
-    const image_file = document.getElementById('image_file').files[0];
-
-    if (!title || !description || !category || !location) {
-        document.getElementById('formMsg').innerHTML = "<span style='color: red;'>Please fill out all required fields.</span>";
-        return;
-    }
-    let formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("category", category);
-    formData.append("location", location);
-    if (image_file) formData.append("image_file", image_file);
-
-    try {
-        const resp = await fetch(`${API_BASE}/issues`, {
-            method: "POST",
-            credentials: "include",
-            body: formData
-        });
-        console.log("Response:", resp.status);
-        const data = await resp.json();
-        console.log("Data:", data);
-        if (resp.status === 201) {
-            document.getElementById('formMsg').innerHTML = "<span style='color: green;'>Complaint reported! ✔️</span>";
-            document.getElementById('issueForm').reset();
-            loadIssues();
-        } else {
-            document.getElementById('formMsg').innerHTML = `<span style='color: red;'>${data.message}</span>`;
-        }
-    } catch (err) {
-        console.error("Fetch error:", err);
-        document.getElementById('formMsg').innerHTML = "<span style='color: red;'>Error reporting complaint.</span>";
-    }
-};
-
-
-// Load Issues and Populate Table
-async function loadIssues() {
-    const area = document.getElementById('issuesArea');
-    area.innerHTML = "<i>Loading complaints...</i>";
-    try {
-        const resp = await fetch(`${API_BASE}/issues`, {credentials: "include"});
-        const data = await resp.json();
-        if (resp.status !== 200) {
-            area.innerHTML = "<span style='color: red;'>Error loading complaints.</span>";
-            return;
-        }
-        if (!data.issues.length) {
-            area.innerHTML = "<i>No complaints reported yet.</i>";
-            return;
-        }
-        let table = `<table>
+      <div class="col-lg-6">
+        <div class="card p-4 mb-4">
+          <h4 class="mb-3 text-success">Reported Issues</h4>
+          <input type="text" id="searchConstituency" class="form-control mb-3" placeholder="Enter Constituency and press Enter">
+          <table class="table table-striped" id="issuesTable">
             <thead>
-                <tr>
-                    <th>Photo</th>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Reporter</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Upvotes</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
+              <tr><th>Title</th><th>Category</th><th>Constituency</th><th>Date</th></tr>
             </thead>
-            <tbody>`;
-        // Get logged-in user for upvote logic
-        let user = await fetch(`${API_BASE}/user/profile`, {credentials:"include"});
-        let userData = await user.json();
-        let user_id = userData.user ? userData.user.id : null;
+            <tbody></tbody>
+          </table>
+        </div>
 
-        data.issues.forEach(issue => {
-            let imgCell = issue.image_url
-                ? `<img src="${issue.image_url}" class="img-thumb" alt="photo">`
-                : `<span style="color:#aaa;">No photo</span>`;
-            let upvoteBtn = `
-                <button class="upvote-btn" 
-                        onclick="upvoteIssue('${issue.id}', this)" 
-                        ${userData.user && userData.user.user_type === "civilian" ?
-                            "" : "disabled"}
-                > <i class="fas fa-thumbs-up"></i> Upvote </button>`;
-            let descCell = `<span title="${issue.description}">${issue.description.slice(0,55)}${issue.description.length>55?'...':''}</span>`;
-            let actions = upvoteBtn;
-            table += `<tr>
-                <td>${imgCell}</td>
-                <td>${issue.title}</td>
-                <td>${issue.category}</td>
-                <td>${issue.reporter_name}</td>
-                <td>${issue.location||'-'}</td>
-                <td>${statusBadge(issue.status)}</td>
-                <td><b style="color:#437ad3;">${issue.upvotes}</b></td>
-                <td>${descCell}</td>
-                <td>${actions}</td>
-            </tr>`;
-        });
-        table += `</tbody></table>`;
-        area.innerHTML = table;
-    } catch (err) {
-        area.innerHTML = "<span style='color:red;'>Could not load complaints.</span>";
-    }
-}
+        <div class="chart-container">
+          <h5 class="text-center">Issues by Category</h5>
+          <canvas id="issuesChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 
-// Upvote issue
-async function upvoteIssue(issueId, btn) {
-    btn.disabled = true;
-    btn.style.opacity = "0.7";
-    try {
-        const resp = await fetch(`${API_BASE}/issues/${issueId}/upvote`, {
-            method: "POST",
-            credentials: "include"
+  <script>
+    // === IMPORTANT: point this to your Flask backend (default port 5000) ===
+    const API_BASE_URL = "http://127.0.0.1:5000";
+
+    const form = document.getElementById("reportForm");
+    const formMessage = document.getElementById("formMessage");
+    const issuesTableBody = document.querySelector("#issuesTable tbody");
+    const searchConstituency = document.getElementById("searchConstituency");
+    const ctx = document.getElementById("issuesChart").getContext("2d");
+    const logoutBtn = document.getElementById('logoutBtn');
+    let chart;
+
+    // Submit issue
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formMessage.textContent = "";
+
+      const formData = new FormData(form);
+      // read constituency for auto-refresh after submit
+      const constituencyVal = (formData.get("constituency") || "").trim();
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/report_issue`, {
+          method: "POST",
+          body: formData
         });
-        const data = await resp.json();
-        if (resp.status === 200) {
-            loadIssues();
+
+        const text = await response.text(); // handle non-json gracefully
+        let result;
+        try { result = JSON.parse(text); } catch { result = { message: text || "No response body" }; }
+
+        if (response.ok) {
+          formMessage.innerHTML = `<div class="alert alert-success">${result.message || "Submitted"}</div>`;
+          form.reset();
+          // refresh results for the constituency if provided
+          if (constituencyVal) fetchIssues(constituencyVal);
         } else {
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            alert(data.message);
+          formMessage.innerHTML = `<div class="alert alert-danger">Error ${response.status}: ${result.message || text}</div>`;
         }
-    } catch {
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        alert("Error upvoting issue.");
-    }
-}
-
-// Status badge
-function statusBadge(status) {
-    let color = "#e1e5ee";
-    if (status === "pending") color = "#ffce40";
-    if (status === "in_progress") color = "#47bdfb";
-    if (status === "resolved") color = "#2de673";
-    return `<span style="padding:4px 14px;border-radius:8px;background:${color};color:#222;font-weight:600;font-size:0.92rem">${status.replace('_',' ')}</span>`;
-}
-
-// Get Location (Geolocation)
-function getLocation() {
-    const locInput = document.getElementById('location');
-    if (!navigator.geolocation) {
-        alert("Geolocation is not supported.");
-        return;
-    }
-    locInput.value="Detecting...";
-    navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude.toFixed(5);
-        const lng = pos.coords.longitude.toFixed(5);
-        locInput.value=`Lat: ${lat}, Lng: ${lng}`;
-    }, err => {
-        locInput.value="";
-        alert("Unable to detect location.");
+      } catch (err) {
+        console.error("Network error:", err);
+        formMessage.innerHTML = `<div class="alert alert-danger">Network error: ${err.message}</div>`;
+      }
     });
-}
 
-// Logout
-async function logout() {
-    await fetch(`${API_BASE}/logout`, {method:"POST", credentials:"include"});
-    alert("Logged out.");
-    window.location.href = 'login.html';
-}
+    // Fetch issues for a constituency
+    async function fetchIssues(constituency) {
+      if (!constituency) return;
+      try {
+        const response = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(constituency)}`);
+        const data = await response.json();
 
-</script>
+        if (!response.ok) {
+          console.error("Server error:", data);
+          return;
+        }
+
+        issuesTableBody.innerHTML = "";
+        let categoryCount = {};
+        data.issues.forEach(issue => {
+          const date = issue.created_at ? new Date(issue.created_at).toLocaleString() : "-";
+          const row = `<tr>
+            <td>${escapeHtml(issue.title)}</td>
+            <td>${escapeHtml(issue.category)}</td>
+            <td>${escapeHtml(issue.constituency)}</td>
+            <td>${date}</td>
+          </tr>`;
+          issuesTableBody.insertAdjacentHTML("beforeend", row);
+          categoryCount[issue.category] = (categoryCount[issue.category] || 0) + 1;
+        });
+
+        updateChart(categoryCount);
+      } catch (err) {
+        console.error("Fetch issues error:", err);
+      }
+    }
+
+    // Update chart
+    function updateChart(categoryCount) {
+      const labels = Object.keys(categoryCount);
+      const values = Object.values(categoryCount);
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{ label: "Number of Issues", data: values, backgroundColor: labels.map(()=> "#007bff") }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+    }
+
+    // Press Enter to search
+    searchConstituency.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const q = searchConstituency.value.trim();
+        fetchIssues(q);
+      }
+    });
+
+    //logout ki functionality
+    logoutBtn.addEventListener('click', async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/logout', {
+        method: 'POST',
+        credentials: 'include' // only needed if you use session/cookies
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert(result.message);
+        // Redirect to login page after logout
+        window.location.href = 'login.html'; // replace with your login page
+      } else {
+        alert('Logout failed: ' + result.message);
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+      alert('Network error during logout');
+    }
+  });
+
+    // small html-escape helper to avoid XSS from demo data
+    function escapeHtml(s) {
+      if (!s) return "";
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
 </body>
 </html>

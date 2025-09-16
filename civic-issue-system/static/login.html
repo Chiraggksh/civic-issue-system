@@ -284,7 +284,7 @@
         const successMessage = document.getElementById('successMessage');
 
         // API Base URL - Replace with your Flask backend URL
-        const API_BASE_URL = 'http://localhost:5000';
+        const API_BASE_URL = "http://127.0.0.1:5000";
 
         loginBtn.addEventListener('click', () => {
             loginBtn.classList.add('active');
@@ -319,10 +319,10 @@
             errorMessage.style.display = 'none';
         }
 
-        // Login form submission
+
+       // Login form submission
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearMessages();
+             e.preventDefault();
 
             const formData = new FormData(loginForm);
             const loginData = {
@@ -331,32 +331,32 @@
             };
 
             try {
+                // Step 1: Login request (cookie gets set here if Flask is configured correctly)
                 const response = await fetch(`${API_BASE_URL}/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(loginData)
+                    body: JSON.stringify(loginData),
+                    credentials: "include"
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    showSuccess('Login successful! Redirecting...');
-                    
-                    // Store user data in memory (you might use JWT tokens in real app)
-                    sessionStorage.setItem('user', JSON.stringify(result.user));
-                    
-                    // Redirect based on user type
-                    setTimeout(() => {
-                        if (result.user.user_type === 'civilian') {
-                            window.location.href = 'civilian-dashboard.html';
-                        } else {
-                            window.location.href = 'officer-dashboard.html';
-                        }
-                    }, 1500);
+                    alert("Login successful!");
+
+                    // Optionally store returned user in sessionStorage
+                    sessionStorage.setItem("user", JSON.stringify(result.user));
+
+                    // Redirect
+                    if (result.user.user_type === "civilian") {
+                        window.location.href = "civilian-dashboard.html";
+                    } else {
+                        window.location.href = "officer-dashboard.html";
+                    }
                 } else {
-                    showError(result.message || 'Login failed');
+                    alert(result.message || "Login failed");
                 }
             } catch (error) {
                 console.error('Login error:', error);
