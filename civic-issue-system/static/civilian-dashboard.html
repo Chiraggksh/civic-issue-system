@@ -69,7 +69,9 @@
       <div class="col-lg-6">
         <div class="card p-4 mb-4">
           <h4 class="mb-3 text-success">Reported Issues</h4>
-          <input type="text" id="searchConstituency" class="form-control mb-3" placeholder="Enter Constituency and press Enter">
+          <input type="text" id="searchConstituency" class="form-control mb-3" placeholder="Enter Constituency">
+          <button type="button" id="searchBtn" class="btn btn-success mb-3">Search</button>
+
           <table class="table table-striped" id="issuesTable">
             <thead>
               <tr><th>Title</th><th>Category</th><th>Constituency</th><th>Date</th></tr>
@@ -78,7 +80,7 @@
           </table>
         </div>
 
-        <div class="chart-container">
+        <div class="chart-container" style="position: relative; height:400px; width:100%;">
           <h5 class="text-center">Issues by Category</h5>
           <canvas id="issuesChart"></canvas>
         </div>
@@ -93,7 +95,8 @@
     const form = document.getElementById("reportForm");
     const formMessage = document.getElementById("formMessage");
     const issuesTableBody = document.querySelector("#issuesTable tbody");
-    const searchConstituency = document.getElementById("searchConstituency");
+    const searchInput = document.getElementById("searchConstituency");
+    const searchBtn = document.getElementById("searchBtn");
     const ctx = document.getElementById("issuesChart").getContext("2d");
     const logoutBtn = document.getElementById('logoutBtn');
     let chart;
@@ -162,7 +165,7 @@
                       <td>${escapeHtml(issue.title)}
                         <br>
                         <small>Upvotes: <span id="upvote-${issue.id}">${issue.upvotes}</span>
-                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="upvote('${issue.id}')">Upvote</button></small>
+                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="upvote('${issue.id}')">Upvote</button></small>
                       </td>
                       <td>${escapeHtml(issue.category)}</td>
                       <td>${escapeHtml(issue.constituency)}</td>
@@ -191,9 +194,8 @@
           const data = await response.json();
           if (response.ok) {
             document.getElementById(`upvote-${issueId}`).textContent = data.upvotes;
-            
-                 // Refresh the table and chart using current constituency
-            if (currentConstituency) refreshIssues();
+         
+          if (currentConstituency) refreshIssues();
           } else {
             console.error("Upvote error:", data.message);
           }
@@ -227,14 +229,11 @@
       });
     }
 
-    // Press Enter to search
-    searchConstituency.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-          e.preventDefault(); // prevent form submit if inside a form
-          currentConstituency = searchConstituency.value.trim();
-          if (currentConstituency) fetchIssues(currentConstituency);
-        }
-    });
+  // Search button click
+      searchBtn.addEventListener("click", () => {
+        currentConstituency = searchInput.value.trim();
+        if (currentConstituency) fetchIssues(currentConstituency);
+      });
 
     //logout ki functionality
     logoutBtn.addEventListener('click', async () => {
