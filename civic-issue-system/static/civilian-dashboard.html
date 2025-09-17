@@ -67,18 +67,20 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="card p-4 mb-4">
-          <h4 class="mb-3 text-success">Reported Issues</h4>
-          <input type="text" id="searchConstituency" class="form-control mb-3" placeholder="Enter Constituency">
-          <button type="button" id="searchBtn" class="btn btn-success mb-3">Search</button>
+  <div class="card p-4 mb-4">
+    <h4 class="mb-3 text-success">Reported Issues</h4>
+    
+    <!-- ✅ Search is OUTSIDE the report form -->
+    <input type="text" id="searchConstituency" class="form-control mb-3" placeholder="Enter Constituency">
+    <button type="button" id="searchBtn" class="btn btn-success mb-3">Search</button>
 
-          <table class="table table-striped" id="issuesTable">
-            <thead>
-              <tr><th>Title</th><th>Category</th><th>Constituency</th><th>Date</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    <table class="table table-striped" id="issuesTable">
+      <thead>
+        <tr><th>Title</th><th>Category</th><th>Constituency</th><th>Date</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
         <div class="chart-container" style="position: relative; height:400px; width:100%;">
           <h5 class="text-center">Issues by Category</h5>
@@ -195,12 +197,14 @@
           if (response.ok) {
             document.getElementById(`upvote-${issueId}`).textContent = data.upvotes;
          
-          if (currentConstituency) refreshIssues();
-          } else {
-            console.error("Upvote error:", data.message);
-          }
-        } catch (err) {
-          console.error("Network error:", err);
+          if (currentConstituency) {
+        fetchIssues(currentConstituency);
+              }
+            } else {
+              console.error("Upvote error:", data.message);
+            }
+          } catch (err) {
+            console.error("Network error:", err);
         }
     }
 
