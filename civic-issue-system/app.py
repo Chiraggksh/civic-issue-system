@@ -252,6 +252,28 @@ def upvote_issue(issue_id):
         print(f"Upvote error: {e}")
         return jsonify({"message": "Internal server error"}), 500
 
+#chart route for issues constituency jo for every constituency hme chart bnake dera h
+@app.route('/issues/constituency_chart', methods=['GET'])
+def constituency_chart():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Get unique constituencies and aggregate upvotes
+    cursor.execute('''
+        SELECT constituency, SUM(upvotes) as total_upvotes, COUNT(*) as issue_count
+        FROM issues
+        GROUP BY constituency
+    ''')
+    rows = cursor.fetchall()
+    chart_data = [
+        {
+            "constituency": row[0],
+            "total_upvotes": row[1],
+            "issue_count": row[2]
+        }
+        for row in rows
+    ]
+    return jsonify(chart_data)
+
 
 if __name__ == '__main__':
     # Initialize database
