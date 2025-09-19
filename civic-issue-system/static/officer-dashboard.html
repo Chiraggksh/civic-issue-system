@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Officer Dashboard - Civic Issue Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .navbar {
+      background-color: #0d6efd;
+    }
+    .navbar .navbar-brand,
+    .navbar .btn {
+      color: white;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+    .modal-content {
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid d-flex justify-content-between">
+      <a class="navbar-brand fw-bold" href="#">Civic Issue Portal</a>
+      <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+
+    <h2 class="mb-3">Officer Dashboard</h2>
+
+    <!-- Search Constituency -->
+    <div class="input-group mb-3">
+      <input type="text" id="searchConstituency" class="form-control" placeholder="Enter constituency">
+      <button class="btn btn-primary" onclick="fetchIssues()">Search</button>
+      <button class="btn btn-secondary" onclick="fetchIssues(true)">Reset</button>
+    </div>
+
+    <!-- Issues Table -->
+    <table class="table table-bordered" id="issuesTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Constituency</th>
+          <th>Upvotes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content p-3">
+          <h5>Edit Issue</h5>
+          <form id="editForm">
+            <input type="hidden" id="editIssueId">
+
+            <div class="form-check mb-2">
+              <input type="checkbox" id="acknowledged" class="form-check-input">
+              <label for="acknowledged" class="form-check-label">Acknowledged</label>
+            </div>
+
+            <div class="mb-2">
+              <label>Assign To</label>
+              <input type="text" id="assignedTo" class="form-control" placeholder="Officer Name">
+            </div>
+
+            <div class="mb-2">
+              <label>Deadline</label>
+              <input type="date" id="maxDeadline" class="form-control">
+            </div>
+
+            <div class="mb-2">
+              <label>Proof Photo</label>
+              <input type="file" id="proofPhoto" class="form-control">
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const API_BASE_URL = "http://127.0.0.1:5000"; // change if backend is on different base
+
+    async function safeJsonResponse(resp) {
+      try {
+        return await resp.json();
+      } catch {
+        return {};
+      }
+    }
+
+    // Logout handler
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        const resp = await fetch(`${API_BASE_URL}/logout`, {
+          method: "POST",
+          credentials: "include"
+        });
+        const body = await safeJsonResponse(resp);
+        if (resp.ok) {
+          alert(body.message || "Logged out");
+          window.location.href = "login.html";
+        } else {
+          alert("Logout failed: " + (body.message || JSON.stringify(body)));
+        }
+      } catch (err) {
+        console.error("Logout error:", err);
+        alert("Network error during logout");
+      }
+    });
+
+    // Fetch issues
+    async function fetchIssues(reset=false) {
+      const constituency = document.getElementById('searchConstituency').value.trim();
+      let url = `${API_BASE_URL}/officer/issues`;
+      if (!reset && constituency) {
+        url += `?constituency=${encodeURIComponent(constituency)}`;
+      }
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const tbody = document.querySelector('#issuesTable tbody');
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6">No issues found</td></tr>`;
+          return;
+        }
+
+        data.forEach(issue => {
+          const row = `
+            <tr>
+              <td>${issue.title}</td>
+              <td>${issue.description}</td>
+              <td>${issue.category}</td>
+              <td>${issue.constituency}</td>
+              <td>${issue.upvotes}</td>
+              <td>
+                <button class="btn btn-sm btn-warning" onclick="openEdit('${issue.id}')">Edit</button>
+              </td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+      } catch (err) {
+        console.error("Error fetching issues:", err);
+      }
+    }
+
+    // Open edit modal
+    function openEdit(id) {
+      document.getElementById("editIssueId").value = id;
+      new bootstrap.Modal(document.getElementById("editModal")).show();
+    }
+
+    // Submit edit form
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("acknowledged", document.getElementById("acknowledged").checked ? 1 : 0);
+      formData.append("assigned_to", document.getElementById("assignedTo").value);
+      formData.append("max_deadline", document.getElementById("maxDeadline").value);
+      if (document.getElementById("proofPhoto").files[0]) {
+        formData.append("proof_photo", document.getElementById("proofPhoto").files[0]);
+      }
+
+      const id = document.getElementById("editIssueId").value;
+      await fetch(`${API_BASE_URL}/officer/update_issue/${id}`, { method: "POST", body: formData });
+      alert("Updated!");
+      bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+      fetchIssues(); // reload after update
+    });
+
+   setInterval(fetchIssues(true), 5000); // refresh every 5 seconds
+
+  </script>
+</body>
+</html>

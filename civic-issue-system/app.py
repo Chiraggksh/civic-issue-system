@@ -58,8 +58,13 @@ def init_db():
             location TEXT,
             image_url TEXT,
             reported_by INTEGER,
-            upvotes INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            upvotes INTEGER DEFAULT 1,
+            acknowledged INTEGER DEFAULT 0,           -- 0 = No, 1 = Yes
+            assigned_to TEXT,                        -- officer name
+            max_deadline DATE,                       -- deadline for issue
+            proof_photo_url TEXT,                    -- uploaded proof image
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     
@@ -205,7 +210,7 @@ def report_issue():
 
 
 
-# ✅ Get issues by constituency (real-time fetch)
+# ✅ Get issues by constituency (real-time fetch) (civilian-api)
 @app.route("/issues/<constituency>", methods=["GET"])
 def get_issues_by_constituency(constituency):
     try:
@@ -236,7 +241,7 @@ def get_issues_by_constituency(constituency):
         print(f"Get issues error: {e}")
         return jsonify({"message": "Internal server error"}), 500
 
-#upvote ki functionality
+#upvote ki functionality (civilian-api)
 @app.route("/upvote/<issue_id>", methods=["POST"])
 def upvote_issue(issue_id):
     try:
@@ -252,7 +257,7 @@ def upvote_issue(issue_id):
         print(f"Upvote error: {e}")
         return jsonify({"message": "Internal server error"}), 500
 
-#chart route for issues constituency jo for every constituency hme chart bnake dera h
+#chart route for issues constituency jo for every constituency hme chart bnake dera h (civilian-api)
 @app.route('/issues/constituency_chart', methods=['GET'])
 def constituency_chart():
     conn = get_db_connection()
@@ -273,6 +278,108 @@ def constituency_chart():
         for row in rows
     ]
     return jsonify(chart_data)
+
+@app.route("/issues/tracker", methods=["GET"])
+def get_issues_tracker():
+    try:
+        conn = get_db_connection()
+        issues = conn.execute("SELECT * FROM issues ORDER BY created_at DESC").fetchall()
+        conn.close()
+
+        issues_list = []
+        for issue in issues:
+            issues_list.append({
+                "id": issue["id"],
+                "title": issue["title"],
+                "acknowledged": bool(issue["acknowledged"]),
+                "assigned_to": issue["assigned_to"] or "To be done",
+                "max_deadline": issue["max_deadline"] or "To be done",
+                "proof_photo_url": issue["proof_photo_url"] or "To be done",
+                "description": issue["description"],
+                "category": issue["category"],
+                "constituency": issue["constituency"],
+                "location": issue["location"] or "To be done",
+                "upvotes": issue["upvotes"]
+            })
+
+        return jsonify(issues_list), 200
+    except Exception as e:
+        print("Tracker fetch error:", e)
+        return jsonify({"message": "Internal server error"}), 500
+
+
+#HERe comes officer api
+@app.route('/officer/issues', methods=['GET'])
+def get_officer_issues():
+    constituency = request.args.get('constituency')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if constituency:
+        cursor.execute(
+            "SELECT * FROM issues WHERE constituency = ? ORDER BY upvotes DESC",
+            (constituency,)
+        )
+    else:
+        cursor.execute(
+            "SELECT * FROM issues ORDER BY upvotes DESC"
+        )
+    
+    issues = cursor.fetchall()
+    conn.close()
+
+    return jsonify([dict(issue) for issue in issues])
+
+
+@app.route("/officer/update_issue/<issue_id>", methods=["POST"])
+def update_issue(issue_id):
+    data = request.form if request.form else request.json
+    acknowledged = data.get("acknowledged")
+    assigned_to = data.get("assigned_to")
+    max_deadline = data.get("max_deadline")
+
+    proof_photo_url = None
+    if "proof_photo" in request.files:
+        file = request.files["proof_photo"]
+        filename = f"proof_{issue_id}.jpg"
+        os.makedirs("static/uploads", exist_ok=True)
+        filepath = os.path.join("static/uploads", filename)
+        file.save(filepath)
+        proof_photo_url = f"/static/uploads/{filename}"
+
+    
+    # ✅ Only update fields that are provided
+    update_fields = []
+    update_values = []
+
+    if acknowledged is not None:
+        update_fields.append("acknowledged = ?")
+        update_values.append(acknowledged)
+
+    if assigned_to:
+        update_fields.append("assigned_to = ?")
+        update_values.append(assigned_to)
+
+    if max_deadline:
+        update_fields.append("max_deadline = ?")
+        update_values.append(max_deadline)
+
+    if proof_photo_url:
+        update_fields.append("proof_photo_url = ?")
+        update_values.append(proof_photo_url)
+
+    update_fields.append("updated_at = CURRENT_TIMESTAMP")
+    query = f"UPDATE issues SET {', '.join(update_fields)} WHERE id = ?"
+    update_values.append(issue_id)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, update_values)
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Issue updated successfully"})
+
 
 
 if __name__ == '__main__':
