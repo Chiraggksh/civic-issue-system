@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Civic Connect - Login</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <style>
-        * {
+        <style>* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -14,24 +15,81 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #4ca1af, #3a6073);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle skyline overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: url("https://svgshare.com/i/15Dq.svg") repeat-x;
+            background-size: contain;
+            opacity: 0.08;
+            animation: skylineMove 60s linear infinite;
+        }
+
+        @keyframes skylineMove {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .container {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             width: 100%;
-            max-width: 900px;
-            min-height: 600px;
+            max-width: 950px;
+            min-height: 620px;
             display: flex;
+            transform: scale(0.95);
+            animation: popIn 0.8s ease forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.85);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .left-panel {
@@ -50,6 +108,21 @@
             font-size: 3rem;
             margin-bottom: 20px;
             color: #ffd700;
+            animation: pulse 2.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.08);
+                opacity: 0.9;
+            }
         }
 
         .left-panel h1 {
@@ -118,7 +191,8 @@
             font-size: 0.9rem;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 15px 20px;
             border: 2px solid #e9ecef;
@@ -128,7 +202,8 @@
             background: #fff;
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #1e3c72;
             box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
@@ -167,7 +242,8 @@
             transform: translateY(0);
         }
 
-        .error-message, .success-message {
+        .error-message,
+        .success-message {
             padding: 12px;
             margin-bottom: 20px;
             border-radius: 8px;
@@ -193,7 +269,8 @@
                 max-width: 400px;
             }
 
-            .left-panel, .right-panel {
+            .left-panel,
+            .right-panel {
                 width: 100%;
             }
 
@@ -210,11 +287,13 @@
             }
         }
     </style>
+
 </head>
+
 <body>
     <div class="container">
         <div class="left-panel">
-            <i class="fas fa-city logo"></i>
+            <i class="fas fa-landmark logo"></i>
             <h1>Civic Connect</h1>
             <p>Report issues, track progress, and help build a better community together</p>
         </div>
@@ -230,14 +309,14 @@
                 <div class="success-message" id="successMessage"></div>
 
                 <!-- Login Form -->
-                <form id="loginForm">
+                <form autocomplete="off" id="loginForm">
                     <div class="form-group">
                         <label for="loginUsername">Username</label>
                         <input type="text" id="loginUsername" name="username" required>
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" name="password" required>
+                        <input type="password" autocomplete="new-password" id="loginPassword" name="password" required>
                     </div>
                     <button type="submit" class="submit-btn">
                         <i class="fas fa-sign-in-alt"></i> Login
@@ -245,14 +324,14 @@
                 </form>
 
                 <!-- Register Form -->
-                <form id="registerForm" style="display: none;">
+                <form autocomplete="off" id="registerForm" style="display: none;">
                     <div class="form-group">
                         <label for="registerUsername">Username</label>
                         <input type="text" id="registerUsername" name="username" required minlength="3">
                     </div>
                     <div class="form-group">
                         <label for="registerPassword">Password</label>
-                        <input type="password" id="registerPassword" name="password" required minlength="6">
+                        <input type="password"autocomplete="new-password"  id="registerPassword" name="password" required minlength="6">
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
@@ -320,9 +399,9 @@
         }
 
 
-       // Login form submission
+        // Login form submission
         loginForm.addEventListener('submit', async (e) => {
-             e.preventDefault();
+            e.preventDefault();
 
             const formData = new FormData(loginForm);
             const loginData = {
@@ -398,7 +477,7 @@
                 if (response.ok) {
                     showSuccess('Registration successful! You can now login.');
                     registerForm.reset();
-                    
+
                     // Switch to login form after 2 seconds
                     setTimeout(() => {
                         loginBtn.click();
@@ -413,4 +492,5 @@
         });
     </script>
 </body>
+
 </html>

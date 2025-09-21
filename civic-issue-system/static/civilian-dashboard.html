@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <title>Civic Issue Portal - Dashboard</title>
@@ -7,14 +8,189 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { background-color: #f4f6f9; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
-    .navbar { background-color: #003366; }
-    .navbar-brand, .nav-link, .navbar-text { color: #fff !important; }
-    .card { border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    .chart-container { background: #fff; border-radius:10px; padding:20px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #003366;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar-brand,
+    .nav-link,
+    .navbar-text {
+      color: #fff !important;
+      font-weight: 500;
+    }
+
+    #logoutBtn {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #logoutBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Card Styles */
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Chart Container */
+    .chart-container {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* Buttons */
+    .btn-primary,
+    .btn-success,
+    .btn-outline-primary,
+    .btn-outline-success {
+      border-radius: 50px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover,
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-success:hover {
+      color: #fff !important;
+      background-color: #1e3c72 !important;
+      border-color: #1e3c72 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Form Inputs */
+    .form-control,
+    .form-select {
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #1e3c72;
+      box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+    }
+
+    /* Tables */
+    table.table {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      background: #fff;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    table.table thead {
+      background: linear-gradient(90deg, #003366, #1e3c72);
+      color: #fff;
+    }
+
+    table.table tbody tr:hover {
+      background-color: rgba(30, 60, 114, 0.05);
+      transform: scale(1.01);
+      transition: all 0.2s ease;
+    }
+
+    /* Modal */
+    .modal-content {
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Headings */
+    h4,
+    h5,
+    h2 {
+      font-weight: 500;
+      position: relative;
+    }
+
+    h4::after,
+    h5::after {
+      content: "";
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #1e3c72;
+      margin-top: 5px;
+      border-radius: 2px;
+    }
+
+    /* Search input + buttons */
+    #searchConstituency,
+    #searchBtn {
+      transition: all 0.3s ease;
+    }
+
+    #searchBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(30, 60, 114, 0.2);
+    }
+
+    /* Responsive tweaks */
+    @media(max-width: 768px) {
+      .chart-container {
+        height: auto;
+      }
+
+      .card {
+        margin-bottom: 20px;
+      }
+    }
   </style>
 </head>
+
 <body>
+
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Civic Issue Portal</a>
@@ -28,17 +204,38 @@
         <div class="card p-4">
           <h4 class="mb-3 text-primary">Report an Issue</h4>
           <form id="reportForm" enctype="multipart/form-data">
-            <div class="mb-3"><label class="form-label">Issue Title</label><input type="text" class="form-control" id="title" name="title" required></div>
-            <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" id="description" name="description" rows="3" required></textarea></div>
-            <div class="mb-3"><label class="form-label">Category</label>
+            <div class="mb-3">
+              <label class="form-label">Issue Title</label>
+              <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Category</label>
               <select class="form-select" id="category" name="category" required>
                 <option value="">Select Category</option>
-                <option>Road</option><option>Water</option><option>Electricity</option><option>Sanitation</option><option>Other</option>
+                <option>Road</option>
+                <option>Water</option>
+                <option>Electricity</option>
+                <option>Sanitation</option>
+                <option>Other</option>
               </select>
             </div>
-            <div class="mb-3"><label class="form-label">Constituency</label><input type="text" class="form-control" id="constituency" name="constituency" placeholder="e.g. South Delhi" required></div>
-            <div class="mb-3"><label class="form-label">Location (optional)</label><input type="text" class="form-control" id="location" name="location"></div>
-            <div class="mb-3"><label class="form-label">Upload Photo</label><input type="file" class="form-control" id="image_file" name="image_file" accept="image/*"></div>
+            <div class="mb-3">
+              <label class="form-label">Constituency</label>
+              <input type="text" class="form-control" id="constituency" name="constituency"
+                placeholder="e.g. South Delhi" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Location (optional)</label>
+              <input type="text" class="form-control" id="location" name="location">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Upload Photo</label>
+              <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+            </div>
             <button type="submit" class="btn btn-primary w-100">Submit Issue</button>
           </form>
           <div id="formMessage" class="mt-3"></div>
@@ -52,7 +249,14 @@
           <button type="button" id="searchBtn" class="btn btn-success mb-3">Search</button>
 
           <table class="table table-striped" id="issuesTable">
-            <thead><tr><th>Title</th><th>Category</th><th>Constituency</th><th>Date</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Constituency</th>
+                <th>Date</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
@@ -70,143 +274,137 @@
   </div>
 
   <div class="container mt-4">
+    <h2 class="mb-3">Complaint Tracker</h2>
+    <table class="table table-bordered" id="trackerTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Acknowledged</th>
+          <th>View More</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-  <h2 class="mb-3">Complaint Tracker</h2>
-
-  <!-- Issues Table -->
-  <table class="table table-bordered" id="trackerTable">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Acknowledged</th>
-        <th>View More</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Filled dynamically -->
-    </tbody>
-  </table>
-
-  <!-- View More Modal -->
-  <div class="modal fade" id="viewMoreModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content p-3">
-        <h5>Issue Details</h5>
-        <div id="modalContent"></div>
-        <div class="text-end mt-3">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <!-- View More Modal -->
+    <div class="modal fade" id="viewMoreModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content p-3">
+          <h5>Issue Details</h5>
+          <div id="modalContent"></div>
+          <div class="text-end mt-3">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-</div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-  // ====== CONFIG ======
-  const API_BASE_URL = "http://127.0.0.1:5000"; // change if your backend runs elsewhere
+    // ====== CONFIG ======
+    const API_BASE_URL = "http://127.0.0.1:5000"; // change if your backend runs elsewhere
 
-  // ====== DOM ======
-  const form = document.getElementById("reportForm");
-  const formMessage = document.getElementById("formMessage");
-  const issuesTableBody = document.querySelector("#issuesTable tbody");
-  const searchInput = document.getElementById("searchConstituency");
-  const searchBtn = document.getElementById("searchBtn");
-  const ctx = document.getElementById("issuesChart").getContext("2d");
-  const logoutBtn = document.getElementById("logoutBtn");
+    // ====== DOM ======
+    const form = document.getElementById("reportForm");
+    const formMessage = document.getElementById("formMessage");
+    const issuesTableBody = document.querySelector("#issuesTable tbody");
+    const searchInput = document.getElementById("searchConstituency");
+    const searchBtn = document.getElementById("searchBtn");
+    const ctx = document.getElementById("issuesChart").getContext("2d");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-  // ====== state ======
-  let chart = null;
-  let chartMode = "category"; // 'category' = categories for current constituency, 'constituency' = aggregated constituencies
-  let currentConstituency = "";
-  let currentIssues = [];
+    // ====== state ======
+    let chart = null;
+    let chartMode = "category"; // 'category' = categories for current constituency, 'constituency' = aggregated constituencies
+    let currentConstituency = "";
+    let currentIssues = [];
 
-  // ====== small helpers ======
-  function escapeHtml(s) {
-    if (s === null || s === undefined) return "";
-    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  }
-
-  async function safeJsonResponse(res) {
-    const ct = res.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      return res.json();
+    // ====== small helpers ======
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return "";
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     }
-    // fallback
-    const txt = await res.text();
-    try {
-      return JSON.parse(txt);
-    } catch {
-      return { message: txt || "No JSON body" };
-    }
-  }
 
-  // ====== Report form submit ======
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    formMessage.textContent = "";
-    const formData = new FormData(form);
-    const constituencyVal = (formData.get("constituency") || "").trim();
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/report_issue`, { method: "POST", body: formData });
-      const body = await safeJsonResponse(res);
-      if (res.ok) {
-        formMessage.innerHTML = `<div class="alert alert-success">${escapeHtml(body.message || "Submitted")}</div>`;
-        form.reset();
-        if (constituencyVal) {
-          currentConstituency = constituencyVal;
-          await fetchIssues(currentConstituency);
-        }
-      } else {
-        formMessage.innerHTML = `<div class="alert alert-danger">Error ${res.status}: ${escapeHtml(body.message || JSON.stringify(body))}</div>`;
+    async function safeJsonResponse(res) {
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        return res.json();
       }
-    } catch (err) {
-      console.error("Network error on submit:", err);
-      formMessage.innerHTML = `<div class="alert alert-danger">Network error: ${escapeHtml(err.message || err)}</div>`;
-    }
-  });
-
-  // ====== fetch issues for a constituency ======
-  async function fetchIssues(constituency) {
-    if (!constituency) return;
-    try {
-      console.log("Fetching issues for:", constituency);
-      const res = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(constituency)}`);
-      let data;
+      // fallback
+      const txt = await res.text();
       try {
-        data = await res.json();
-      } catch (err) {
-        console.error("Failed to parse /issues response as JSON:", err);
-        const t = await res.text();
-        console.error("Response text:", t);
-        return;
+        return JSON.parse(txt);
+      } catch {
+        return { message: txt || "No JSON body" };
       }
-      if (!res.ok) {
-        console.error("Server error (issues):", data);
-        return;
-      }
-
-      currentIssues = Array.isArray(data.issues) ? data.issues.slice() : [];
-      // ❌ don't sort here → keep table stable
-
-      renderTable();
-      updateChartFromIssues();
-    } catch (err) {
-      console.error("Fetch issues error:", err);
-      if (err instanceof TypeError) console.warn("Check backend is running and CORS is allowed.");
     }
-  }
 
-  // ====== render table ======
-  function renderTable() {
-    issuesTableBody.innerHTML = "";
-    currentIssues.forEach((issue) => {
-      const date = issue.created_at ? new Date(issue.created_at).toLocaleString() : "-";
-      const idSafe = escapeHtml(issue.id);
-      const rowHTML = `
+    // ====== Report form submit ======
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formMessage.textContent = "";
+      const formData = new FormData(form);
+      const constituencyVal = (formData.get("constituency") || "").trim();
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/report_issue`, { method: "POST", body: formData });
+        const body = await safeJsonResponse(res);
+        if (res.ok) {
+          formMessage.innerHTML = `<div class="alert alert-success">${escapeHtml(body.message || "Submitted")}</div>`;
+          form.reset();
+          if (constituencyVal) {
+            currentConstituency = constituencyVal;
+            await fetchIssues(currentConstituency);
+          }
+        } else {
+          formMessage.innerHTML = `<div class="alert alert-danger">Error ${res.status}: ${escapeHtml(body.message || JSON.stringify(body))}</div>`;
+        }
+      } catch (err) {
+        console.error("Network error on submit:", err);
+        formMessage.innerHTML = `<div class="alert alert-danger">Network error: ${escapeHtml(err.message || err)}</div>`;
+      }
+    });
+
+    // ====== fetch issues for a constituency ======
+    async function fetchIssues(constituency) {
+      if (!constituency) return;
+      try {
+        console.log("Fetching issues for:", constituency);
+        const res = await fetch(`${API_BASE_URL}/issues/${encodeURIComponent(constituency)}`);
+        let data;
+        try {
+          data = await res.json();
+        } catch (err) {
+          console.error("Failed to parse /issues response as JSON:", err);
+          const t = await res.text();
+          console.error("Response text:", t);
+          return;
+        }
+        if (!res.ok) {
+          console.error("Server error (issues):", data);
+          return;
+        }
+
+        currentIssues = Array.isArray(data.issues) ? data.issues.slice() : [];
+        // ❌ don't sort here → keep table stable
+
+        renderTable();
+        updateChartFromIssues();
+      } catch (err) {
+        console.error("Fetch issues error:", err);
+        if (err instanceof TypeError) console.warn("Check backend is running and CORS is allowed.");
+      }
+    }
+
+    // ====== render table ======
+    function renderTable() {
+      issuesTableBody.innerHTML = "";
+      currentIssues.forEach((issue) => {
+        const date = issue.created_at ? new Date(issue.created_at).toLocaleString() : "-";
+        const idSafe = escapeHtml(issue.id);
+        const rowHTML = `
         <tr data-issue-id="${idSafe}" data-category="${escapeHtml(issue.category || "")}">
           <td>
             ${escapeHtml(issue.title)}
@@ -221,121 +419,121 @@
           <td>${escapeHtml(date)}</td>
         </tr>
       `;
-      issuesTableBody.insertAdjacentHTML("beforeend", rowHTML);
+        issuesTableBody.insertAdjacentHTML("beforeend", rowHTML);
+      });
+    }
+
+    // ====== upvote (event delegation) ======
+    issuesTableBody.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".upvote-btn");
+      if (!btn) return;
+      const issueId = btn.dataset.issueId;
+      if (!issueId) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE_URL}/upvote/${encodeURIComponent(issueId)}`, { method: "POST" });
+        const body = await safeJsonResponse(res);
+        if (!res.ok) {
+          console.error("Upvote failed:", body);
+          return;
+        }
+
+        // update DOM span only (no re-sorting)
+        const upvoteSpan = document.getElementById(`upvote-${issueId}`);
+        if (upvoteSpan) upvoteSpan.textContent = body.upvotes;
+
+        // update local currentIssues
+        const local = currentIssues.find((i) => String(i.id) === String(issueId));
+        if (local) local.upvotes = Number(body.upvotes);
+
+        updateChartFromIssues();
+      } catch (err) {
+        console.error("Upvote network error:", err);
+      } finally {
+        btn.disabled = false;
+      }
     });
-  }
 
-  // ====== upvote (event delegation) ======
-  issuesTableBody.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".upvote-btn");
-    if (!btn) return;
-    const issueId = btn.dataset.issueId;
-    if (!issueId) return;
-    btn.disabled = true;
-    try {
-      const res = await fetch(`${API_BASE_URL}/upvote/${encodeURIComponent(issueId)}`, { method: "POST" });
-      const body = await safeJsonResponse(res);
-      if (!res.ok) {
-        console.error("Upvote failed:", body);
-        return;
-      }
-
-      // update DOM span only (no re-sorting)
-      const upvoteSpan = document.getElementById(`upvote-${issueId}`);
-      if (upvoteSpan) upvoteSpan.textContent = body.upvotes;
-
-      // update local currentIssues
-      const local = currentIssues.find((i) => String(i.id) === String(issueId));
-      if (local) local.upvotes = Number(body.upvotes);
-
-      updateChartFromIssues();
-    } catch (err) {
-      console.error("Upvote network error:", err);
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  // ====== chart helpers ======
-  function updateChartFromIssues() {
-    if (chartMode === "category") {
-      const categoryCount = {};
-      currentIssues.forEach((i) => {
-        const cat = (i.category || "Uncategorized").toString().trim();
-        categoryCount[cat] = (categoryCount[cat] || 0) + Number(i.upvotes || 0);
-      });
-      updateChart(categoryCount, `Upvotes by Category (${currentConstituency || "—"})`);
-    } else {
-      fetch(`${API_BASE_URL}/issues/constituency_chart`)
-        .then((res) => res.json())
-        .then((data) => {
-          const countMap = {};
-          data.forEach((row) => {
-            countMap[row.constituency] = row.total_upvotes;
-          });
-          updateChart(countMap, "Upvotes by Constituency (all)");
-        })
-        .catch((err) => console.error("Constituency chart fetch error:", err));
-    }
-  }
-
-  function updateChart(countMap, title) {
-    const labels = Object.keys(countMap);
-    const values = Object.values(countMap);
-    if (!chart) {
-      chart = new Chart(ctx, {
-        type: "bar",
-        data: { labels, datasets: [{ label: title, data: values, backgroundColor: labels.map(() => "#007bff") }] },
-        options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title } } },
-      });
-    } else {
-      chart.data.labels = labels;
-      chart.data.datasets[0].label = title;
-      chart.data.datasets[0].data = values;
-      chart.data.datasets[0].backgroundColor = labels.map(() => "#007bff");
-      chart.options.plugins.title.text = title;
-      chart.update();
-    }
-  }
-
-  // ====== UI bindings ======
-  searchBtn.addEventListener("click", () => {
-    const c = searchInput.value.trim();
-    if (!c) return;
-    currentConstituency = c;
-    fetchIssues(c);
-  });
-  searchInput.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") searchBtn.click();
-  });
-
-  document.getElementById("btnByConstituency").addEventListener("click", () => {
-    chartMode = "constituency";
-    updateChartFromIssues();
-  });
-  document.getElementById("btnByCategory").addEventListener("click", () => {
-    chartMode = "category";
-    updateChartFromIssues();
-  });
-
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      const resp = await fetch(`${API_BASE_URL}/logout`, { method: "POST", credentials: "include" });
-      const body = await safeJsonResponse(resp);
-      if (resp.ok) {
-        alert(body.message || "Logged out");
-        window.location.href = "login.html";
+    // ====== chart helpers ======
+    function updateChartFromIssues() {
+      if (chartMode === "category") {
+        const categoryCount = {};
+        currentIssues.forEach((i) => {
+          const cat = (i.category || "Uncategorized").toString().trim();
+          categoryCount[cat] = (categoryCount[cat] || 0) + Number(i.upvotes || 0);
+        });
+        updateChart(categoryCount, `Upvotes by Category (${currentConstituency || "—"})`);
       } else {
-        alert("Logout failed: " + (body.message || JSON.stringify(body)));
+        fetch(`${API_BASE_URL}/issues/constituency_chart`)
+          .then((res) => res.json())
+          .then((data) => {
+            const countMap = {};
+            data.forEach((row) => {
+              countMap[row.constituency] = row.total_upvotes;
+            });
+            updateChart(countMap, "Upvotes by Constituency (all)");
+          })
+          .catch((err) => console.error("Constituency chart fetch error:", err));
       }
-    } catch (err) {
-      console.error("Logout error:", err);
-      alert("Network error during logout");
     }
-  });
+
+    function updateChart(countMap, title) {
+      const labels = Object.keys(countMap);
+      const values = Object.values(countMap);
+      if (!chart) {
+        chart = new Chart(ctx, {
+          type: "bar",
+          data: { labels, datasets: [{ label: title, data: values, backgroundColor: labels.map(() => "#007bff") }] },
+          options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title } } },
+        });
+      } else {
+        chart.data.labels = labels;
+        chart.data.datasets[0].label = title;
+        chart.data.datasets[0].data = values;
+        chart.data.datasets[0].backgroundColor = labels.map(() => "#007bff");
+        chart.options.plugins.title.text = title;
+        chart.update();
+      }
+    }
+
+    // ====== UI bindings ======
+    searchBtn.addEventListener("click", () => {
+      const c = searchInput.value.trim();
+      if (!c) return;
+      currentConstituency = c;
+      fetchIssues(c);
+    });
+    searchInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") searchBtn.click();
+    });
+
+    document.getElementById("btnByConstituency").addEventListener("click", () => {
+      chartMode = "constituency";
+      updateChartFromIssues();
+    });
+    document.getElementById("btnByCategory").addEventListener("click", () => {
+      chartMode = "category";
+      updateChartFromIssues();
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        const resp = await fetch(`${API_BASE_URL}/logout`, { method: "POST", credentials: "include" });
+        const body = await safeJsonResponse(resp);
+        if (resp.ok) {
+          alert(body.message || "Logged out");
+          window.location.href = "login.html";
+        } else {
+          alert("Logout failed: " + (body.message || JSON.stringify(body)));
+        }
+      } catch (err) {
+        console.error("Logout error:", err);
+        alert("Network error during logout");
+      }
+    });
 
 
-  // Fetch issues for tracker
+    // Fetch issues for tracker
     async function fetchTracker() {
       try {
         const res = await fetch(`${API_BASE_URL}/issues/tracker`);
@@ -401,8 +599,9 @@
 
     // Load tracker on page load
     window.onload = fetchTracker;
-  console.log("Dashboard script loaded. Use search to load a constituency (e.g. mundka).");
-</script>
+    console.log("Dashboard script loaded. Use search to load a constituency (e.g. mundka).");
+  </script>
 
 </body>
+
 </html>

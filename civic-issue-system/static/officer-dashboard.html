@@ -4,55 +4,149 @@
   <meta charset="UTF-8">
   <title>Officer Dashboard - Civic Issue Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
   <style>
+    /* ===== Global Styling ===== */
     body {
-      background-color: #f8f9fa;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #eef3f9 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
+
+    /* ===== Navbar ===== */
     .navbar {
-      background-color: #0d6efd;
+      background: linear-gradient(90deg, #0d47a1, #1565c0);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      animation: slideDown 0.8s ease-out;
     }
-    .navbar .navbar-brand,
+    .navbar .navbar-brand {
+      color: #fff !important;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
     .navbar .btn {
-      color: white;
+      border-radius: 20px;
+      transition: all 0.3s ease-in-out;
     }
-    .table th, .table td {
-      vertical-align: middle;
-      text-align: center;
+    .navbar .btn:hover {
+      background: #fff;
+      color: #0d47a1 !important;
     }
+
+    /* ===== Page Title ===== */
+    h2 {
+      font-weight: 700;
+      color: #0d47a1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      animation: fadeIn 1.2s ease-in;
+    }
+
+    /* ===== Search Bar ===== */
+    .input-group {
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      animation: fadeInUp 1s ease-in-out;
+    }
+    .form-control {
+      border: none;
+    }
+
+    /* ===== Table Styling ===== */
+    .table {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+      animation: fadeInUp 1.2s ease-in-out;
+    }
+    .table th {
+      background: #1565c0;
+      color: #fff;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+    .table td {
+      background: #fafafa;
+      transition: background 0.3s ease;
+    }
+    .table tbody tr:hover td {
+      background: #e3f2fd;
+    }
+
+    /* ===== Buttons ===== */
+    .btn-primary, .btn-secondary {
+      border-radius: 20px;
+      transition: transform 0.2s ease-in-out;
+    }
+    .btn-primary:hover, .btn-secondary:hover {
+      transform: scale(1.05);
+    }
+
+    /* ===== Modal Styling ===== */
     .modal-content {
-      border-radius: 10px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+      animation: zoomIn 0.4s ease;
+    }
+    .modal-header {
+      background: #1565c0;
+      color: #fff;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes zoomIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg">
+  <nav class="navbar navbar-expand-lg px-3">
     <div class="container-fluid d-flex justify-content-between">
-      <a class="navbar-brand fw-bold" href="#">Civic Issue Portal</a>
-      <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+      <a class="navbar-brand fw-bold" href="#"><i class="bi bi-bank2 me-2"></i>Civic Issue Portal</a>
+      <button id="logoutBtn" class="btn btn-outline-light btn-sm px-3"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
     </div>
   </nav>
 
   <!-- Main Content -->
   <div class="container mt-4">
 
-    <h2 class="mb-3">Officer Dashboard</h2>
+    <h2 class="mb-4"><i class="bi bi-person-badge me-2"></i>Officer Dashboard</h2>
 
     <!-- Search Constituency -->
-    <div class="input-group mb-3">
+    <div class="input-group mb-4">
       <input type="text" id="searchConstituency" class="form-control" placeholder="Enter constituency">
-      <button class="btn btn-primary" onclick="fetchIssues()">Search</button>
-      <button class="btn btn-secondary" onclick="fetchIssues(true)">Reset</button>
+      <button class="btn btn-primary" onclick="fetchIssues()"><i class="bi bi-search"></i> Search</button>
+      <button class="btn btn-secondary" onclick="fetchIssues(true)"><i class="bi bi-arrow-repeat"></i> Reset</button>
     </div>
 
     <!-- Issues Table -->
-    <table class="table table-bordered" id="issuesTable">
+    <table class="table table-bordered text-center" id="issuesTable">
       <thead>
         <tr>
           <th>Title</th>
@@ -64,42 +158,47 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Filled dynamically -->
+        <!-- Dynamic rows -->
       </tbody>
     </table>
 
     <!-- Edit Modal -->
     <div class="modal fade" id="editModal" tabindex="-1">
       <div class="modal-dialog">
-        <div class="modal-content p-3">
-          <h5>Edit Issue</h5>
-          <form id="editForm">
-            <input type="hidden" id="editIssueId">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Issue</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editForm">
+              <input type="hidden" id="editIssueId">
 
-            <div class="form-check mb-2">
-              <input type="checkbox" id="acknowledged" class="form-check-input">
-              <label for="acknowledged" class="form-check-label">Acknowledged</label>
-            </div>
+              <div class="form-check mb-3">
+                <input type="checkbox" id="acknowledged" class="form-check-input">
+                <label for="acknowledged" class="form-check-label">Acknowledged</label>
+              </div>
 
-            <div class="mb-2">
-              <label>Assign To</label>
-              <input type="text" id="assignedTo" class="form-control" placeholder="Officer Name">
-            </div>
+              <div class="mb-3">
+                <label class="form-label">Assign To</label>
+                <input type="text" id="assignedTo" class="form-control" placeholder="Officer Name">
+              </div>
 
-            <div class="mb-2">
-              <label>Deadline</label>
-              <input type="date" id="maxDeadline" class="form-control">
-            </div>
+              <div class="mb-3">
+                <label class="form-label">Deadline</label>
+                <input type="date" id="maxDeadline" class="form-control">
+              </div>
 
-            <div class="mb-2">
-              <label>Proof Photo</label>
-              <input type="file" id="proofPhoto" class="form-control">
-            </div>
+              <div class="mb-3">
+                <label class="form-label">Proof Photo</label>
+                <input type="file" id="proofPhoto" class="form-control">
+              </div>
 
-            <div class="text-end">
-              <button type="submit" class="btn btn-primary">Save</button>
-            </div>
-          </form>
+              <div class="text-end">
+                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save me-1"></i> Save</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
