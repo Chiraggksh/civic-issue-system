@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 import uuid
 from werkzeug.utils import secure_filename
+from flask import send_from_directory
 
 
 
@@ -376,7 +377,7 @@ def update_issue(issue_id):
         os.makedirs("static/uploads", exist_ok=True)
         filepath = os.path.join("static/uploads", filename)
         file.save(filepath)
-        proof_photo_url = f"/static/uploads/{filename}"
+        proof_photo_url = f"/uploads/{filename}"
 
     
     # ✅ Only update fields that are provided
@@ -411,6 +412,9 @@ def update_issue(issue_id):
 
     return jsonify({"message": "Issue updated successfully"})
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory('static/uploads', filename)
 
 
 if __name__ == '__main__':
