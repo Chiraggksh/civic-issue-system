@@ -77,6 +77,36 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row  # This enables column access by name
     return conn
 
+
+#complaints tracker with uid vala logic
+@app.route("/issues/tracker/<uid>", methods=["GET"])
+def get_issues_by_uid(uid):
+    try:
+        conn = get_db_connection()
+        issues = conn.execute("SELECT * FROM issues WHERE reported_by = ? ORDER BY created_at DESC", (uid,)).fetchall()
+        conn.close()
+
+        issues_list = []
+        for issue in issues:
+            issues_list.append({
+                "id": issue["id"],
+                "title": issue["title"],
+                "acknowledged": bool(issue["acknowledged"]),
+                "assigned_to": issue["assigned_to"] or "To be done",
+                "max_deadline": issue["max_deadline"] or "To be done",
+                "proof_photo_url": issue["proof_photo_url"] or "To be done",
+                "description": issue["description"],
+                "category": issue["category"],
+                "constituency": issue["constituency"],
+                "location": issue["location"] or "To be done",
+                "upvotes": issue["upvotes"]
+            })
+
+        return jsonify(issues_list), 200
+    except Exception as e:
+        print("Tracker fetch error:", e)
+        return jsonify({"message": "Internal server error"}), 500
+
 @app.route('/register', methods=['POST'])
 def register():
     """Register a new user"""
@@ -171,6 +201,7 @@ def logout():
 @app.route("/report_issue", methods=["POST"])
 def report_issue():
     try:
+        uid = request.form.get("uid")
         title = request.form.get("title")
         description = request.form.get("description")
         category = request.form.get("category")
@@ -179,8 +210,8 @@ def report_issue():
         image_file = request.files.get("image_file")
 
         # Basic validation
-        if not title or not description or not constituency:
-            return jsonify({"message": "Title, description, and constituency are required"}), 400
+        if not title or not description or not constituency or not uid:
+            return jsonify({"message": "UID, Title, description, and constituency are required"}), 400
 
         # Save image if provided
         image_url = None
@@ -196,9 +227,9 @@ def report_issue():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO issues (id, title, description, category, constituency, location, image_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (issue_id, title, description, category, constituency, location, image_url))
+            INSERT INTO issues (id, title, description, category, constituency, location, image_url, reported_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (issue_id, title, description, category, constituency, location, image_url, uid))
         conn.commit()
         conn.close()
 

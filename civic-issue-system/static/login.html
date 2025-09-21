@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Civic Connect - Login</title>
+     <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <style>
-        <style>* {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -286,15 +288,42 @@
                 font-size: 2rem;
             }
         }
+
+        .brand-title {
+            font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 3rem;
+            text-align: center;
+            background: linear-gradient(90deg, #0d6efd, #20c997);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 20px 0;
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
 </head>
 
 <body>
+   
     <div class="container">
         <div class="left-panel">
             <i class="fas fa-landmark logo"></i>
-            <h1>Civic Connect</h1>
+            <h1 class="brand-title">प्रगति-Path</h1>
             <p>Report issues, track progress, and help build a better community together</p>
         </div>
 
@@ -331,7 +360,8 @@
                     </div>
                     <div class="form-group">
                         <label for="registerPassword">Password</label>
-                        <input type="password"autocomplete="new-password"  id="registerPassword" name="password" required minlength="6">
+                        <input type="password" autocomplete="new-password" id="registerPassword" name="password"
+                            required minlength="6">
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>

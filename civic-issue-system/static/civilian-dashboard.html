@@ -3,7 +3,10 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Civic Issue Portal - Dashboard</title>
+  <title>Civilian Dashboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@700&family=Poppins:wght@700&display=swap"
+    rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -15,24 +18,108 @@
 
     /* Navbar */
     .navbar {
-      background-color: #003366;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(90deg, #044ab3, #020507);
+      padding: 0.8rem 1rem;
     }
 
-    .navbar-brand,
+
     .nav-link,
     .navbar-text {
       color: #fff !important;
       font-weight: 500;
     }
 
+    .navbar-brand {
+      font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+
+      /* Shiny gradient */
+      background: linear-gradient(90deg, #ffffff, #dcdcdc, #f5f5f5, #ffffff);
+      background-size: 300% auto;
+
+      /* Clip text for gradient */
+      background-clip: text;
+      color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: transform 0.2s ease-in-out;
+
+      /* Animation */
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      0% {
+        background-position: 0% center;
+      }
+
+      100% {
+        background-position: 100% center;
+      }
+    }
+
+
+    .navbar-brand:hover {
+      transform: scale(1.08);
+    }
+
     #logoutBtn {
+      border-radius: 20px;
+      padding: 5px 15px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     #logoutBtn:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Toggle Buttons */
+    .toggle-btns {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .toggle-btns .btn {
+      border-radius: 30px;
+      margin: 0 10px;
+      padding: 10px 20px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .toggle-btns .btn.active {
+      background: #003366;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    /* Sections */
+    .content-section {
+      display: none;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Card Styles */
@@ -193,15 +280,23 @@
 
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Civic Issue Portal</a>
+      <a class="navbar-brand" href="#">प्रगति-Path</a>
       <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
     </div>
   </nav>
 
-  <div class="container my-4">
+  <!-- Toggle Buttons -->
+  <div class="toggle-btns">
+    <button class="btn btn-outline-primary active" onclick="showSection('report')">Report an Issue</button>
+    <button class="btn btn-outline-success" onclick="showSection('issues')">Reported Issues</button>
+    <button class="btn btn-outline-info" onclick="showSection('track')">Track Your Complaints</button>
+  </div>
+
+  <!--for reporting your issue-->
+  <div id="report" class="container content-section active">
     <div class="row g-4">
-      <div class="col-lg-6">
-        <div class="card p-4">
+      <div class="col-lg-12">
+        <div class="card p-4 mb-4">
           <h4 class="mb-3 text-primary">Report an Issue</h4>
           <form id="reportForm" enctype="multipart/form-data">
             <div class="mb-3">
@@ -229,6 +324,11 @@
                 placeholder="e.g. South Delhi" required>
             </div>
             <div class="mb-3">
+              <label class="form-label">Your UID</label>
+              <input type="text" class="form-control" id="uid" name="uid"
+                placeholder="Enter your UID (needed for tracking your complaint later)" required>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Location (optional)</label>
               <input type="text" class="form-control" id="location" name="location">
             </div>
@@ -241,13 +341,17 @@
           <div id="formMessage" class="mt-3"></div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="col-lg-6">
+  <!--Reported issues vala content and chart-->
+  <div id="issues" class="container content-section">
+    <div class="row g-4">
+      <div class="col-lg-12">
         <div class="card p-4 mb-4">
           <h4 class="mb-3 text-success">Reported Issues</h4>
           <input type="text" id="searchConstituency" class="form-control mb-3" placeholder="Enter Constituency">
           <button type="button" id="searchBtn" class="btn btn-success mb-3">Search</button>
-
           <table class="table table-striped" id="issuesTable">
             <thead>
               <tr>
@@ -261,7 +365,8 @@
           </table>
         </div>
 
-        <div class="chart-container" style="position: relative; height:400px; width:100%;">
+
+        <div class="chart-container">
           <h5 class="text-center">Issues Chart</h5>
           <div class="d-flex justify-content-center mb-3">
             <button id="btnByConstituency" class="btn btn-outline-success me-2">By Constituency</button>
@@ -273,18 +378,30 @@
     </div>
   </div>
 
-  <div class="container mt-4">
-    <h2 class="mb-3">Complaint Tracker</h2>
-    <table class="table table-bordered" id="trackerTable">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Acknowledged</th>
-          <th>View More</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <!-- Complaints track krne ke lie-->
+  <div id="track" class="container content-section">
+    <div class="card p-4 mb-4">
+      <h4 class="mb-3 text-info">Complaint Tracker</h4>
+
+      <!-- UID input -->
+      <div class="mb-3">
+        <label class="form-label">Enter UID</label>
+        <input type="text" id="uidSearch" class="form-control" placeholder="Enter your UID">
+      </div>
+      <button type="button" id="trackerSearchBtn" class="btn btn-primary mb-3">Search</button>
+
+      <!-- Complaints Table -->
+      <table class="table table-bordered" id="trackerTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Acknowledged</th>
+            <th>View More</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
     <!-- View More Modal -->
     <div class="modal fade" id="viewMoreModal" tabindex="-1">
@@ -300,6 +417,7 @@
     </div>
   </div>
 
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
@@ -314,6 +432,14 @@
     const searchBtn = document.getElementById("searchBtn");
     const ctx = document.getElementById("issuesChart").getContext("2d");
     const logoutBtn = document.getElementById("logoutBtn");
+
+    //for toggle buttons functionality
+    function showSection(id) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.toggle-btns .btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      event.target.classList.add('active');
+    }
 
     // ====== state ======
     let chart = null;
@@ -532,28 +658,32 @@
       }
     });
 
+    document.getElementById("trackerSearchBtn").addEventListener("click", fetchTracker);
 
-    // Fetch issues for tracker
     async function fetchTracker() {
+      const uid = document.getElementById("uidSearch").value.trim();
+      if (!uid) {
+        alert("Please enter your UID");
+        return;
+      }
+
       try {
-        const res = await fetch(`${API_BASE_URL}/issues/tracker`);
+        const res = await fetch(`${API_BASE_URL}/issues/tracker/${uid}`);
         const data = await res.json();
         const tbody = document.querySelector('#trackerTable tbody');
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="3">No issues reported yet</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="3">No issues found for UID ${uid}</td></tr>`;
           return;
         }
 
         data.forEach(issue => {
           const row = document.createElement('tr');
 
-          // Title
           const titleTd = document.createElement('td');
           titleTd.textContent = issue.title;
 
-          // Acknowledged
           const ackTd = document.createElement('td');
           const ackCheckbox = document.createElement('input');
           ackCheckbox.type = 'checkbox';
@@ -561,7 +691,6 @@
           ackCheckbox.checked = issue.acknowledged;
           ackTd.appendChild(ackCheckbox);
 
-          // View More button
           const viewTd = document.createElement('td');
           const viewBtn = document.createElement('button');
           viewBtn.className = 'btn btn-sm btn-info';
@@ -580,6 +709,7 @@
       }
     }
 
+
     // Show modal with full issue details
     function showModal(issue) {
       const modalContent = document.getElementById('modalContent');
@@ -597,8 +727,12 @@
       new bootstrap.Modal(document.getElementById('viewMoreModal')).show();
     }
 
-    // Load tracker on page load
-    window.onload = fetchTracker;
+    window.onload = () => {
+      const uid = document.getElementById("uidSearch").value.trim();
+      if (uid) {
+        fetchTracker();
+      }
+    };
     console.log("Dashboard script loaded. Use search to load a constituency (e.g. mundka).");
   </script>
 
